@@ -29,7 +29,7 @@ MIT - Freeware
 
 - 2023-02-24 ver.1.0: First release.
 - 2023-02-24 ver.1.1: Supported x64.
-- 2023-XX-YY ver.1.2: Added Minimize Box.
+- 2023-XX-YY ver.1.2: Added Minimize Box. Improved command line parsing.
 
 ## Contact
 

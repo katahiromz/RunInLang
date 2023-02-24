@@ -26,6 +26,7 @@ HINSTANCE g_hInstance = NULL;
 HICON g_hIcon = NULL, g_hIconSm = NULL;
 std::vector<string_t> g_history;
 std::vector<LANGID> g_LangIDs;
+LPWSTR g_arg = NULL;
 
 // structure for language information
 struct LANG_ENTRY
@@ -231,6 +232,53 @@ std::string AnsiFromWide(UINT codepage, LPCWSTR wide)
     return ansi;
 }
 
+BOOL GetPathOfShortcut(HWND hWnd, LPCTSTR pszLnkFile, LPTSTR pszPath)
+{
+    TCHAR           szPath[MAX_PATH];
+#ifndef UNICODE
+    WCHAR           wsz[MAX_PATH];
+#endif
+    IShellLink*     pShellLink;
+    IPersistFile*   pPersistFile;
+    WIN32_FIND_DATA find;
+    BOOL            bRes = FALSE;
+
+    szPath[0] = '\0';
+    HRESULT hr = CoInitialize(NULL);
+    if (SUCCEEDED(hr))
+    {
+        if (SUCCEEDED(hr = CoCreateInstance(CLSID_ShellLink, NULL, 
+            CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID *)&pShellLink)))
+        {
+            if (SUCCEEDED(hr = pShellLink->QueryInterface(IID_IPersistFile, 
+                (VOID **)&pPersistFile)))
+            {
+#ifndef UNICODE
+                MultiByteToWideChar(CP_ACP, 0, pszLnkFile, -1, wsz, MAX_PATH);
+                hr = pPersistFile->Load(wsz, STGM_READ);
+#else
+                hr = pPersistFile->Load(pszLnkFile,  STGM_READ);
+#endif
+                if (SUCCEEDED(hr))
+                {
+                    if (SUCCEEDED(hr = pShellLink->GetPath(szPath, _countof(szPath), &find, 0)))
+                    {
+                        if ('\0' != szPath[0])
+                        {
+                            StringCchCopy(pszPath, MAX_PATH, szPath);
+                            bRes = TRUE;
+                        }
+                    }
+                }
+                pPersistFile->Release();
+            }
+            pShellLink->Release();
+        }
+        CoUninitialize();
+    }
+    return bRes;
+}
+
 BOOL OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
 {
     ::DragAcceptFiles(hwnd, TRUE);
@@ -309,6 +357,20 @@ BOOL OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
     SHAutoComplete(hwndEdit, SHACF_FILESYSTEM | SHACF_FILESYS_ONLY | SHACF_URLALL);
 
     DoLoadSettings(hwnd);
+
+    if (g_arg)
+    {
+        WCHAR szPath[MAX_PATH];
+        if (lstrcmpiW(PathFindExtension(g_arg), L".LNK") == 0 &&
+            GetPathOfShortcut(hwnd, g_arg, szPath))
+        {
+            SetDlgItemTextW(hwnd, cmb1, szPath);
+        }
+        else
+        {
+            SetDlgItemTextW(hwnd, cmb1, g_arg);
+        }
+    }
 
     return TRUE;
 }
@@ -458,53 +520,6 @@ void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
     }
 }
 
-BOOL GetPathOfShortcut(HWND hWnd, LPCTSTR pszLnkFile, LPTSTR pszPath)
-{
-    TCHAR           szPath[MAX_PATH];
-#ifndef UNICODE
-    WCHAR           wsz[MAX_PATH];
-#endif
-    IShellLink*     pShellLink;
-    IPersistFile*   pPersistFile;
-    WIN32_FIND_DATA find;
-    BOOL            bRes = FALSE;
-
-    szPath[0] = '\0';
-    HRESULT hr = CoInitialize(NULL);
-    if (SUCCEEDED(hr))
-    {
-        if (SUCCEEDED(hr = CoCreateInstance(CLSID_ShellLink, NULL, 
-            CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID *)&pShellLink)))
-        {
-            if (SUCCEEDED(hr = pShellLink->QueryInterface(IID_IPersistFile, 
-                (VOID **)&pPersistFile)))
-            {
-#ifndef UNICODE
-                MultiByteToWideChar(CP_ACP, 0, pszLnkFile, -1, wsz, MAX_PATH);
-                hr = pPersistFile->Load(wsz, STGM_READ);
-#else
-                hr = pPersistFile->Load(pszLnkFile,  STGM_READ);
-#endif
-                if (SUCCEEDED(hr))
-                {
-                    if (SUCCEEDED(hr = pShellLink->GetPath(szPath, _countof(szPath), &find, 0)))
-                    {
-                        if ('\0' != szPath[0])
-                        {
-                            StringCchCopy(pszPath, MAX_PATH, szPath);
-                            bRes = TRUE;
-                        }
-                    }
-                }
-                pPersistFile->Release();
-            }
-            pShellLink->Release();
-        }
-        CoUninitialize();
-    }
-    return bRes;
-}
-
 void OnDropFiles(HWND hwnd, HDROP hdrop)
 {
     TCHAR szPath[MAX_PATH];
@@ -591,7 +606,6 @@ INT ParseCommandLine(INT argc, LPWSTR *argv, INT nCmdShow)
 
     if (argc <= 2)
     {
-        Usage();
         return -1;
     }
 
@@ -623,8 +637,14 @@ INT ParseCommandLine(INT argc, LPWSTR *argv, INT nCmdShow)
 
 INT RunInLang_Main(HINSTANCE hInstance, INT nCmdShow, INT argc, LPWSTR *argv)
 {
+    g_arg = NULL;
     if (argc >= 2)
-        return ParseCommandLine(argc, argv, nCmdShow);
+    {
+        if (argv[1][0] == L'/' || argv[1][0] == L'-')
+            return ParseCommandLine(argc, argv, nCmdShow);
+
+        g_arg = argv[1];
+    }
 
     g_hInstance = hInstance;
     InitCommonControls();
