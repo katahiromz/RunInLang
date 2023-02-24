@@ -639,11 +639,11 @@ INT ParseCommandLine(INT argc, LPWSTR *argv, INT nCmdShow)
             cmdline += L' ';
 
         LPWSTR arg = argv[iarg];
-        if (wcschr(arg, L' ') ||wcschr(arg, L'\t'))
+        if (wcschr(arg, L' ') || wcschr(arg, L'\t'))
         {
-            cmdline += L'\\';
+            cmdline += L'\"';
             cmdline += arg;
-            cmdline += L'\\';
+            cmdline += L'\"';
         }
         else
         {
