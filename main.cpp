@@ -408,7 +408,7 @@ BOOL DoRunInLang(HWND hwnd, LPCTSTR cmdline, LANGID wLangID, INT nCmdShow)
     sei.hwnd = hwnd;
     sei.lpFile = szPath;
     sei.lpParameters = strCmdLine.c_str();
-    sei.nShow = nCmdShow;
+    sei.nShow = SW_HIDE;
     if (!ShellExecuteEx(&sei))
     {
         //MessageBox(hwnd, strCmdLine.c_str(), szPath, 0);
