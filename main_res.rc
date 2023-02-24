@@ -33,7 +33,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_DEFAULT
 // RT_DIALOG
 
 IDD_MAIN DIALOG 0, 0, 240, 155
-CAPTION "RunInLang - Specify language and run"
+CAPTION "RunInLang ver.1.0 - Specify language and run"
 STYLE DS_CENTER | DS_MODALFRAME | WS_POPUPWINDOW | WS_CAPTION
 FONT 10, "MS Shell Dlg"
 {
@@ -54,7 +54,7 @@ FONT 10, "MS Shell Dlg"
 STRINGTABLE
 {
     IDS_APPNAME, "RunInLang"
-    IDS_VERSIONSTRING, "RunInLang ver.0.0 by katahiromz"
+    IDS_VERSIONSTRING, "RunInLang ver.1.0 by katahiromz"
     IDS_NEUTRAL, "Neutral"
     IDS_OPENFILTER, "Program Files (*.exe;*.scr)|*.exe;*.scr|All Files (*.*)|*.*|"
     IDS_RUNTITLE, "Browse for a file"
@@ -70,7 +70,7 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 // RT_DIALOG
 
 IDD_MAIN DIALOG 0, 0, 240, 155
-CAPTION "RunInLang - 言語を指定して実行"
+CAPTION "RunInLang ver.1.0 - 言語を指定して実行"
 STYLE DS_CENTER | DS_MODALFRAME | WS_POPUPWINDOW | WS_CAPTION
 FONT 10, "MS UI Gothic"
 {
@@ -91,7 +91,7 @@ FONT 10, "MS UI Gothic"
 STRINGTABLE
 {
     IDS_APPNAME, "RunInLang"
-    IDS_VERSIONSTRING, "RunInLang ver.0.0 by katahiromz"
+    IDS_VERSIONSTRING, "RunInLang ver.1.0 by katahiromz"
     IDS_NEUTRAL, "ニュートラル"
     IDS_OPENFILTER, "プログラム ファイル (*.exe;*.scr)|*.exe;*.scr|すべてのファイル (*.*)|*.*|"
     IDS_RUNTITLE, "ファイルを参照"

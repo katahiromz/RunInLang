@@ -9,6 +9,10 @@ This freeware can run a command line with a specific UI language.
 3. Specify a language.
 4. Click [OK] button. The command line will be executed in the specified language.
 
+* The language to be used must be pre-installed on Windows.
+* The app must support the language.
+* Depending on the implementation of the app, the language may not be able to be changed.
+
 # Supported platforms
 
 Windows XP/Vista/7/10/11
