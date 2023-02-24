@@ -1,6 +1,12 @@
-#include <string>
+#include <cstdlib>
 #include <cstdio>
+
+#include <string>
+#include <vector>
+
 #include <windows.h>
+#include <tchar.h>
+#include <strsafe.h>
 
 void version(void)
 {
@@ -14,13 +20,8 @@ void version(void)
 void usage(void)
 {
     puts(
-#ifdef _WIN64
-        "ril64 --- Specify language and run\n"
-#else
-        "ril32 --- Specify language and run\n"
-#endif
-        "\n"
         "Usage: ril32 <lang-id> <command-line>\n"
+        "\n"
         "Options:\n"
         "  --help        Display this message.\n"
         "  --version     Display version info.\n"
@@ -90,7 +91,7 @@ VOID AddLangs(VOID)
     {
         LANG_ENTRY entry;
         entry.LangID = MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL);
-        entry.str = "Neutral";
+        entry.str = L"Neutral";
         g_langs.push_back(entry);
     }
 
@@ -201,6 +202,12 @@ INT ril_main(INT argc, LPWSTR *argv)
 {
     _wsetlocale(LC_ALL, L"");
 
+    if (argc <= 1)
+    {
+        usage();
+        return -1;
+    }
+
     if (argc == 2)
     {
         std::wstring arg = argv[1];
@@ -221,12 +228,21 @@ INT ril_main(INT argc, LPWSTR *argv)
                 do_list();
                 return 0;
             }
-        }
 #ifdef _WIN64
-        fwprintf(stderr, L"ril64: invalid argument - '%s'\n", arg.c_str());
+            fwprintf(stderr, L"ril64: ERROR: invalid argument - '%s'\n", arg.c_str());
 #else
-        fwprintf(stderr, L"ril32: invalid argument - '%s'\n", arg.c_str());
+            fwprintf(stderr, L"ril32: ERROR: invalid argument - '%s'\n", arg.c_str());
 #endif
+        }
+        else
+        {
+#ifdef _WIN64
+            fwprintf(stderr, L"ril64: ERROR: invalid syntax\n");
+#else
+            fwprintf(stderr, L"ril32: ERROR: invalid syntax\n");
+#endif
+        }
+        usage();
         return -1;
     }
 
@@ -235,7 +251,7 @@ INT ril_main(INT argc, LPWSTR *argv)
     std::wstring cmdline;
     for (INT iarg = 2; iarg < argc; ++iarg)
     {
-        if (iarg == 2)
+        if (cmdline.size())
             cmdline += L' ';
 
         auto arg = argv[iarg];
@@ -251,14 +267,16 @@ INT ril_main(INT argc, LPWSTR *argv)
         }
     }
 
+    //_putws(cmdline.c_str());
+
     if (!DoRunInLang(NULL, cmdline.c_str(), LangID, SW_SHOWNORMAL))
     {
         DWORD dwError = GetLastError();
 #ifdef _WIN64
-        fwprintf(stderr, L"ril64: Unable to execute: %s (error code: %ld)\n",
+        fwprintf(stderr, L"ril64: ERROR: Unable to execute: %s (error code: %ld)\n",
                 cmdline.c_str(), dwError);
 #else
-        fwprintf(stderr, L"ril32: Unable to execute: %s (error code: %ld)\n",
+        fwprintf(stderr, L"ril32: ERROR: Unable to execute: %s (error code: %ld)\n",
                 cmdline.c_str(), dwError);
 #endif
         return -1;

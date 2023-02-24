@@ -9,7 +9,7 @@ This freeware can run a command line with a specific UI language.
 1. Double-click file "RunInLang.exe".
 2. Specify a program name or command line. Or you can drop the target program file onto this program.
 3. Specify a language.
-4. Click [OK] button. The command line will be executed in the specified language.
+4. Click [Run] button. The command line will be executed in the specified language.
 
 ## Caution
 
@@ -30,6 +30,7 @@ MIT - Freeware
 - 2023-02-24 ver.1.0: First release.
 - 2023-02-24 ver.1.1: Supported x64.
 - 2023-02-24 ver.1.2: Added Minimize Box. Improved command line parsing.
+- 2023-02-24 ver.1.3: Made OK button Run button. Split the main job to ril32/ril64.exe.
 
 ## Contact
 

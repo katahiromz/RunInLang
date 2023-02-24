@@ -396,16 +396,27 @@ BOOL DoRunInLang(HWND hwnd, LPCTSTR cmdline, LANGID wLangID, INT nCmdShow)
     GetModuleFileName(NULL, szPath, _countof(szPath));
     PathRemoveFileSpec(szPath);
     if (dwType == SCS_64BIT_BINARY)
-        PathAppend(szPath, TEXT("pil32.exe"));
+        PathAppend(szPath, TEXT("ril64.exe"));
     else
-        PathAppend(szPath, TEXT("pil64.exe"));
+        PathAppend(szPath, TEXT("ril32.exe"));
+
+    string_t strCmdLine = std::to_wstring(wLangID);
+    strCmdLine += TEXT(" ");
+    strCmdLine += cmdline;
 
     SHELLEXECUTEINFO sei = { sizeof(sei), SEE_MASK_FLAG_NO_UI };
     sei.hwnd = hwnd;
     sei.lpFile = szPath;
-    sei.lpParameters = cmdline;
+    sei.lpParameters = strCmdLine.c_str();
     sei.nShow = nCmdShow;
-    return ShellExecuteEx(&sei);
+    if (!ShellExecuteEx(&sei))
+    {
+        //MessageBox(hwnd, strCmdLine.c_str(), szPath, 0);
+        //MessageBox(hwnd, std::to_wstring(GetLastError()).c_str(), NULL, MB_ICONERROR);
+        return FALSE;
+    }
+
+    return TRUE;
 }
 
 BOOL OnOK(HWND hwnd)
@@ -429,7 +440,7 @@ BOOL OnOK(HWND hwnd)
 
     DoSaveSettings(hwnd, szCmdLine, LangID);
 
-    return TRUE;
+    return FALSE;
 }
 
 void OnBrowse(HWND hwnd)
