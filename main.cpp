@@ -388,12 +388,9 @@ FN_SetLang GetLangProc(void)
     HMODULE hKernel32 = GetModuleHandle(TEXT("kernel32"));
     FN_SetLang fn;
     if (IsWindowsVistaOrLater())
-    {
         fn = (FN_SetLang)GetProcAddress(hKernel32, "SetThreadUILanguage");
-        return fn;
-    }
-
-    fn = (FN_SetLang)GetProcAddress(hKernel32, "SetThreadLocale");
+    else
+        fn = (FN_SetLang)GetProcAddress(hKernel32, "SetThreadLocale");
     return fn;
 }
 
@@ -640,7 +637,7 @@ INT RunInLang_Main(HINSTANCE hInstance, INT nCmdShow, INT argc, LPWSTR *argv)
     g_arg = NULL;
     if (argc >= 2)
     {
-        if (argv[1][0] == L'/' || argv[1][0] == L'-')
+        if (argc != 2 || argv[1][0] == L'/' || argv[1][0] == L'-')
             return ParseCommandLine(argc, argv, nCmdShow);
 
         g_arg = argv[1];
