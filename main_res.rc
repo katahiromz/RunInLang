@@ -59,7 +59,7 @@ STRINGTABLE
     IDS_OPENFILTER, "Program Files (*.exe;*.scr)|*.exe;*.scr|All Files (*.*)|*.*|"
     IDS_RUNTITLE, "Browse for a file"
     IDS_FAILTORUN, "Failed to run an application."
-    IDS_USAGE, "Usage: RunInLang <langid> <cmdline>"
+    IDS_USAGE, "Usage: RunInLang <langid> <cmdline>\r\n\r\nOptions:\r\n--help Display this message.\r\n--version Display version info.\r\n--list Display the language list."
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -96,7 +96,7 @@ STRINGTABLE
     IDS_OPENFILTER, "プログラム ファイル (*.exe;*.scr)|*.exe;*.scr|すべてのファイル (*.*)|*.*|"
     IDS_RUNTITLE, "ファイルを参照"
     IDS_FAILTORUN, "アプリの実行に失敗しました。"
-    IDS_USAGE, "使い方: RunInLang <langid> <cmdline>"
+    IDS_USAGE, "使い方: RunInLang <言語ID> <コマンドライン>\r\n\r\nオプション:\r\n--help このメッセージを表示。\r\n--version バージョン情報を表示。\r\n--list 言語リストを表示。"
 }
 
 //////////////////////////////////////////////////////////////////////////////

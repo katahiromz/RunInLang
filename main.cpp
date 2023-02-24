@@ -279,19 +279,8 @@ BOOL GetPathOfShortcut(HWND hWnd, LPCTSTR pszLnkFile, LPTSTR pszPath)
     return bRes;
 }
 
-BOOL OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
+VOID AddLangs(VOID)
 {
-    ::DragAcceptFiles(hwnd, TRUE);
-
-    g_hIcon = ::LoadIcon(g_hInstance, MAKEINTRESOURCE(IDI_MAINICON));
-    g_hIconSm = (HICON)::LoadImage(g_hInstance, MAKEINTRESOURCE(IDI_MAINICON),
-        IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON),
-        0);
-
-    // Set dialog icons
-    ::SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)g_hIcon);
-    ::SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)g_hIconSm);
-
     // add the neutral language
     {
         LANG_ENTRY entry;
@@ -308,29 +297,43 @@ BOOL OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
     EnumUILanguages(EnumUILanguagesProc, 0, 0);
 
     // Erase non-UI languages
+    size_t i = g_langs.size();
+    while (i > 0)
     {
-        size_t i = g_langs.size();
-        while (i > 0)
-        {
-            --i;
-            if (g_langs[i].LangID == 0) // Neutral
-                continue;
+        --i;
+        if (g_langs[i].LangID == 0) // Neutral
+            continue;
 
-            bool found = false;
-            for (size_t k = 0; k < g_LangIDs.size(); ++k)
+        bool found = false;
+        for (size_t k = 0; k < g_LangIDs.size(); ++k)
+        {
+            if (g_LangIDs[k] == g_langs[i].LangID)
             {
-                if (g_LangIDs[k] == g_langs[i].LangID)
-                {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-            {
-                g_langs.erase(g_langs.begin() + i);
+                found = true;
+                break;
             }
         }
+        if (!found)
+        {
+            g_langs.erase(g_langs.begin() + i);
+        }
     }
+}
+
+BOOL OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
+{
+    ::DragAcceptFiles(hwnd, TRUE);
+
+    g_hIcon = ::LoadIcon(g_hInstance, MAKEINTRESOURCE(IDI_MAINICON));
+    g_hIconSm = (HICON)::LoadImage(g_hInstance, MAKEINTRESOURCE(IDI_MAINICON),
+        IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON),
+        0);
+
+    // Set dialog icons
+    ::SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)g_hIcon);
+    ::SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)g_hIconSm);
+
+    AddLangs();
 
     // Set languages to cmb2
     HWND hCmb2 = GetDlgItem(hwnd, cmb2);
@@ -582,6 +585,22 @@ VOID Version(VOID)
     MessageBox(NULL, text.c_str(), title.c_str(), MB_ICONINFORMATION);
 }
 
+VOID DoList(HWND hwnd)
+{
+    AddLangs();
+
+    string_t str;
+    TCHAR szText[256];
+    for (size_t i = 0; i < g_langs.size(); ++i)
+    {
+        StringCchPrintf(szText, _countof(szText), TEXT("0x%X - %s\n"),
+                        g_langs[i].LangID, g_langs[i].str.c_str());
+        str += szText;
+    }
+
+    MessageBox(hwnd, str.c_str(), LoadStringDx(IDS_APPNAME).c_str(), MB_ICONINFORMATION);
+}
+
 INT ParseCommandLine(INT argc, LPWSTR *argv, INT nCmdShow)
 {
     if (argc >= 2)
@@ -597,6 +616,12 @@ INT ParseCommandLine(INT argc, LPWSTR *argv, INT nCmdShow)
             lstrcmpiW(argv[1], L"-version") == 0)
         {
             Version();
+            return 0;
+        }
+        if (lstrcmpiW(argv[1], L"--list") == 0 ||
+            lstrcmpiW(argv[1], L"-list") == 0)
+        {
+            DoList(NULL);
             return 0;
         }
     }
