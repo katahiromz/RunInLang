@@ -25,6 +25,10 @@ Windows XP/Vista/7/10/11
 
 MIT - Freeware
 
+## History
+
+- 2023-02-24 ver.1.0: First release.
+
 ## Contact
 
 Katayama Hirofumi MZ

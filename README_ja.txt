@@ -25,6 +25,10 @@ Windows XP/Vista/7/10/11
 
 MIT - フリーソフト
 
+## 開発履歴
+
+- 2023-02-24 ver.1.0: 初公開。
+
 ## 連絡先
 
 Katayama Hirofumi MZ
