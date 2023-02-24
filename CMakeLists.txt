@@ -23,4 +23,9 @@ add_definitions(-DUNICODE -D_UNICODE)
 add_executable(RunInLang WIN32 main.cpp main_res.rc)
 target_link_libraries(RunInLang comctl32 comdlg32 shell32 shlwapi)
 
+# x64?
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set_target_properties(RunInLang PROPERTIES OUTPUT_NAME "RunInLang64")
+endif()
+
 ##############################################################################
