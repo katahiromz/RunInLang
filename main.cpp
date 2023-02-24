@@ -378,62 +378,34 @@ BOOL OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
     return TRUE;
 }
 
-typedef LANGID (WINAPI *FN_SetLang)(LANGID);
-
-BOOL IsWindowsVistaOrLater(VOID)
-{
-    OSVERSIONINFO osver = { sizeof(osver) };
-    return (GetVersionEx(&osver) && osver.dwMajorVersion >= 6);
-}
-
-FN_SetLang GetLangProc(void)
-{
-    HMODULE hKernel32 = GetModuleHandle(TEXT("kernel32"));
-    FN_SetLang fn;
-    if (IsWindowsVistaOrLater())
-        fn = (FN_SetLang)GetProcAddress(hKernel32, "SetThreadUILanguage");
-    else
-        fn = (FN_SetLang)GetProcAddress(hKernel32, "SetThreadLocale");
-    return fn;
-}
-
-BOOL SetLangToThread(HANDLE hThread, LANGID wLangID)
-{
-    BOOL ret = FALSE;
-    FN_SetLang fn = GetLangProc();
-    if (fn)
-        ret = (BOOL)QueueUserAPC((PAPCFUNC)fn, hThread, wLangID);
-
-    return ret;
-}
-
 BOOL DoRunInLang(HWND hwnd, LPCTSTR cmdline, LANGID wLangID, INT nCmdShow)
 {
-    STARTUPINFO si = { sizeof(si) };
-    PROCESS_INFORMATION pi = { NULL };
+    TCHAR szCmdLine[1024];
+    StringCchCopy(szCmdLine, _countof(szCmdLine), cmdline);
 
-    si.dwFlags = STARTF_USESHOWWINDOW;
-    si.wShowWindow = nCmdShow;
+    /* Split 1st parameter from trailing arguments */
+    LPTSTR args = PathGetArgs(szCmdLine);
+    PathRemoveArgsW(szCmdLine);
+    PathUnquoteSpacesW(szCmdLine); /* Unquote the 1st parameter */
 
-    LPTSTR pszCmdLine = _tcsdup(cmdline);
-    if (pszCmdLine == NULL)
-        return FALSE;
-    BOOL ret = CreateProcess(NULL, pszCmdLine, NULL, NULL, FALSE,
-                             CREATE_SUSPENDED | CREATE_NEW_CONSOLE,
-                             NULL, NULL, &si, &pi);
-    free(pszCmdLine);
+    DWORD dwType;
+    if (!GetBinaryType(szCmdLine, &dwType))
+        dwType = -1;
 
-    if (!ret)
-        return FALSE;
+    TCHAR szPath[MAX_PATH];
+    GetModuleFileName(NULL, szPath, _countof(szPath));
+    PathRemoveFileSpec(szPath);
+    if (dwType == SCS_64BIT_BINARY)
+        PathAppend(szPath, TEXT("pil32.exe"));
+    else
+        PathAppend(szPath, TEXT("pil64.exe"));
 
-    SetLangToThread(pi.hThread, wLangID);
-
-    ResumeThread(pi.hThread);
-
-    CloseHandle(pi.hThread);
-    CloseHandle(pi.hProcess);
-
-    return TRUE;
+    SHELLEXECUTEINFO sei = { sizeof(sei), SEE_MASK_FLAG_NO_UI };
+    sei.hwnd = hwnd;
+    sei.lpFile = szPath;
+    sei.lpParameters = cmdline;
+    sei.nShow = nCmdShow;
+    return ShellExecuteEx(&sei);
 }
 
 BOOL OnOK(HWND hwnd)

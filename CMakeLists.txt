@@ -25,7 +25,9 @@ target_link_libraries(RunInLang comctl32 comdlg32 shell32 shlwapi)
 
 # x64?
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set_target_properties(RunInLang PROPERTIES OUTPUT_NAME "RunInLang64")
+    add_executable(ril64 ril.cpp)
+else()
+    add_executable(ril32 ril.cpp)
 endif()
 
 ##############################################################################
