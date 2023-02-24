@@ -102,7 +102,7 @@ EnumEngLocalesProc(LPTSTR lpLocaleString)
 static BOOL CALLBACK
 EnumUILanguagesProc(LPTSTR pszName, LONG_PTR lParam)
 {
-    g_LangIDs.push_back(_tcstoul(pszName, NULL, 16));
+    g_LangIDs.push_back((LANGID)_tcstoul(pszName, NULL, 16));
     return TRUE;
 }
 
@@ -138,7 +138,7 @@ BOOL DoLoadSettings(HWND hwnd)
 
         szValue[_countof(szValue) - 1] = 0; // Avoid buffer overrun
 
-        INT iItem = SendDlgItemMessage(hwnd, cmb1, CB_ADDSTRING, 0, (LPARAM)szValue);
+        INT iItem = (INT)SendDlgItemMessage(hwnd, cmb1, CB_ADDSTRING, 0, (LPARAM)szValue);
         g_history.push_back(szValue);
         if (i == 0)
             SendDlgItemMessage(hwnd, cmb1, CB_SETCURSEL, iItem, 0);
@@ -192,11 +192,11 @@ BOOL DoSaveSettings(HWND hwnd, LPCTSTR cmdline, DWORD dwLangId)
         dwCount = 16;
     RegSetValueEx(hAppKey, TEXT("NumCmdLine"), 0, REG_DWORD, (const BYTE*)&dwCount, sizeof(dwCount));
 
-    TCHAR szName[64], szValue[1024];
+    TCHAR szName[64];
     for (size_t i = 0; i < dwCount; ++i)
     {
         StringCchPrintf(szName, _countof(szName), TEXT("CmdLine-%u"), (INT)i);
-        DWORD cbValue = (g_history[i].size() + 1) * sizeof(WCHAR);
+        DWORD cbValue = (DWORD)((g_history[i].size() + 1) * sizeof(WCHAR));
         RegSetValueEx(hAppKey, szName, 0, REG_SZ, (const BYTE*)g_history[i].c_str(), cbValue);
     }
 
