@@ -265,6 +265,9 @@ BOOL OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
         while (i > 0)
         {
             --i;
+            if (g_langs[i].LangID == 0) // Neutral
+                continue;
+
             bool found = false;
             for (size_t k = 0; k < g_LangIDs.size(); ++k)
             {
