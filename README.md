@@ -4,9 +4,13 @@
 
 This freeware can run a command line with a specific UI language.
 
-<img src="images/screenshot2.png" alt="" align="center" />
+<p align="center">
+    <img src="images/screenshot2.png" alt="[RunInLang]" />
+</p>
 
-<img src="images/notepad2.png" alt="" align="center" />
+<p align="center">
+    <img src="images/notepad2.png" alt="[notepad]" />
+</p>
 
 ## Usage
 
