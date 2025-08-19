@@ -25,7 +25,7 @@
 HINSTANCE g_hInstance = NULL;
 HICON g_hIcon = NULL, g_hIconSm = NULL;
 std::vector<string_t> g_history;
-std::vector<LANGID> g_LangIDs;
+std::vector<LANGID> g_UiLangIDs;
 LPWSTR g_arg = NULL;
 
 // structure for language information
@@ -57,8 +57,6 @@ EnumLocalesProc(LPTSTR lpLocaleString)
         return TRUE;    // continue
     if (!GetLocaleInfo(lcid, LOCALE_SLANGUAGE, sz, _countof(sz)))
         return TRUE;    // continue
-    if (!IsValidLocale(lcid, LCID_SUPPORTED))
-        return TRUE;    // continue
 
     entry.str = sz;     // store the text
 
@@ -85,8 +83,6 @@ EnumEngLocalesProc(LPTSTR lpLocaleString)
         return TRUE;    // continue
     if (!GetLocaleInfo(lcid, LOCALE_SENGCOUNTRY, sz2, _countof(sz2)))
         return TRUE;    // continue
-    if (!IsValidLocale(lcid, LCID_SUPPORTED))
-        return TRUE;    // continue
 
     // join them and store it
     entry.str = sz1;
@@ -103,7 +99,7 @@ EnumEngLocalesProc(LPTSTR lpLocaleString)
 static BOOL CALLBACK
 EnumUILanguagesProc(LPTSTR pszName, LONG_PTR lParam)
 {
-    g_LangIDs.push_back((LANGID)_tcstoul(pszName, NULL, 16));
+    g_UiLangIDs.push_back((LANGID)_tcstoul(pszName, NULL, 16));
     return TRUE;
 }
 
@@ -290,9 +286,9 @@ VOID AddLangs(VOID)
     }
 
     // enumerate localized languages
-    EnumSystemLocales(EnumLocalesProc, LCID_INSTALLED);
+    EnumSystemLocales(EnumLocalesProc, LCID_SUPPORTED);
     // enumerate English languages
-    EnumSystemLocales(EnumEngLocalesProc, LCID_INSTALLED);
+    EnumSystemLocales(EnumEngLocalesProc, LCID_SUPPORTED);
     // enumerate UI languages
     EnumUILanguages(EnumUILanguagesProc, 0, 0);
 
@@ -305,9 +301,9 @@ VOID AddLangs(VOID)
             continue;
 
         bool found = false;
-        for (size_t k = 0; k < g_LangIDs.size(); ++k)
+        for (size_t k = 0; k < g_UiLangIDs.size(); ++k)
         {
-            if (g_LangIDs[k] == g_langs[i].LangID)
+            if (g_UiLangIDs[k] == g_langs[i].LangID)
             {
                 found = true;
                 break;
@@ -400,7 +396,9 @@ BOOL DoRunInLang(HWND hwnd, LPCTSTR cmdline, LANGID wLangID, INT nCmdShow)
     else
         PathAppend(szPath, TEXT("ril32.exe"));
 
-    string_t strCmdLine = std::to_wstring(wLangID);
+    TCHAR szText[64];
+    StringCchPrintf(szText, _countof(szText), TEXT("%u"), wLangID);
+    string_t strCmdLine = szText;
     strCmdLine += TEXT(" ");
     strCmdLine += cmdline;
 

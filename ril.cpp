@@ -254,7 +254,7 @@ INT ril_main(INT argc, LPWSTR *argv)
         if (cmdline.size())
             cmdline += L' ';
 
-        auto arg = argv[iarg];
+        LPWSTR arg = argv[iarg];
         if (wcschr(arg, L' ') || wcschr(arg, L'\t'))
         {
             cmdline += L'"';
