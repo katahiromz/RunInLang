@@ -31,7 +31,7 @@ MIT - Freeware
 - 2023-02-24 ver.1.1: Supported x64.
 - 2023-02-24 ver.1.2: Added Minimize Box. Improved command line parsing.
 - 2023-02-24 ver.1.3: Made OK button Run button. Split the main job to ril32/ril64.exe.
-- 2025-08-20 ver.2.0: Improved UI/UX. Added installer. Added digital signature.
+- 2025-08-20 ver.2.0: Improved UI/UX. Added installer. Added digital signature. Relaxed language restriction.
 
 ## Contact
 

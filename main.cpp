@@ -3,6 +3,7 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include <windows.h>
 #include <windowsx.h>
@@ -38,6 +39,10 @@ struct LANG_ENTRY
     bool operator<(const LANG_ENTRY& ent) const
     {
         return str < ent.str;
+    }
+    bool operator==(const LANG_ENTRY& ent) const
+    {
+        return LangID == ent.LangID && str == ent.str;
     }
 };
 std::vector<LANG_ENTRY> g_langs;
@@ -292,6 +297,11 @@ VOID AddLangs(VOID)
     // enumerate UI languages
     EnumUILanguages(EnumUILanguagesProc, 0, 0);
 
+    // sort and unique
+    std::sort(g_langs.begin(), g_langs.end());
+    g_langs.erase(std::unique(g_langs.begin(), g_langs.end()), g_langs.end());
+
+#if 0
     // Erase non-UI languages
     size_t i = g_langs.size();
     while (i > 0)
@@ -314,6 +324,7 @@ VOID AddLangs(VOID)
             g_langs.erase(g_langs.begin() + i);
         }
     }
+#endif
 }
 
 BOOL OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
